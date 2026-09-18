@@ -29,6 +29,36 @@
       "theoreticalFrequencyHz": 533.6065398817526,
       "measuredFrequencyHz": 533.46,
       "percentError": 0.027462159999959355
+    },
+    {
+      "id": "02817e9d-f080-47bb-ad97-4562d0a66274",
+      "username": "student",
+      "submittedAt": "2026-09-18T19:57:44.573Z",
+      "inputs": {
+        "Rf": 71100,
+        "R1": 33000,
+        "R2": 10000,
+        "C": 1.0000000000000001e-7,
+        "Vsat": 15
+      },
+      "theoreticalFrequencyHz": 538.6363636363636,
+      "measuredFrequencyHz": 538.64,
+      "percentError": 0.0006751054852314535
+    },
+    {
+      "id": "54db6fca-9715-43d5-b8bb-1875625d9542",
+      "username": "student",
+      "submittedAt": "2026-09-18T19:57:58.530Z",
+      "inputs": {
+        "Rf": 55100,
+        "R1": 33000,
+        "R2": 10000,
+        "C": 1.0000000000000001e-7,
+        "Vsat": 15
+      },
+      "theoreticalFrequencyHz": 417.42424242424244,
+      "measuredFrequencyHz": 417.42,
+      "percentError": 0.0010163339382930864
     }
   ]
 }

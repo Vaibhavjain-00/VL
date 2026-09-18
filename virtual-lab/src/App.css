@@ -2950,3 +2950,107 @@
     padding: 25px 18px;
   }
 }
+
+/* =====================================
+   CIRCUIT CONNECTION STATUS
+   ===================================== */
+
+.circuit-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+
+.check-connection-button,
+.start-experiment-button,
+.clear-wire-button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
+.check-connection-button {
+  background: #1565c0;
+  color: white;
+}
+
+
+.check-connection-button:hover {
+  background: #0d47a1;
+}
+
+
+.start-experiment-button {
+  background: #2e7d32;
+  color: white;
+}
+
+
+.start-experiment-button:hover {
+  background: #1b5e20;
+}
+
+
+.start-experiment-button:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+}
+
+
+.clear-wire-button {
+  background: #e53935;
+  color: white;
+}
+
+
+.connection-status {
+  margin: 12px auto 0;
+  padding: 10px 15px;
+  max-width: 700px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+.connection-status.correct {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #81c784;
+}
+
+
+.connection-status.wrong {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+
+.connection-status.not-checked {
+  background: #f5f5f5;
+  color: #616161;
+  border: 1px solid #ddd;
+}
+
+
+.circuit-svg {
+  width: 100%;
+  height: auto;
+  min-height: 430px;
+}
+
+
+.circuit-workspace {
+  padding: 15px;
+  background: #fff;
+  overflow-x: auto;
+}

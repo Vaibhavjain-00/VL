@@ -37,6 +37,10 @@ function FunctionGenerator({ embedded = false }) {
   const [selectedTerminal, setSelectedTerminal] = useState(null);
   const [connections, setConnections] = useState([]);
 
+  const [connectionStatus, setConnectionStatus] = useState("not-checked");
+const [connectionMessage, setConnectionMessage] = useState("");
+const [experimentStarted, setExperimentStarted] = useState(false);
+
   const [activeChannels, setActiveChannels] = useState({
     ch1: true,
     ch2: true,
@@ -62,25 +66,32 @@ function FunctionGenerator({ embedded = false }) {
    * Fixed circuit terminals.
    * x and y are positions inside the circuit SVG.
    */
+  // Interactive patch terminals for the IIT-style circuit.
+  // Only A-G1, B-G2, C-G3 and D-G4 are valid.
+  // Coordinates are based on the actual IIT circuit image (1540 x 784).
+  // The circuit image occupies the left 80% of the workspace and the G1-G4
+  // patch points sit in a separate right-side patch column, matching the
+  // reference layout.
   const terminals = [
-    { id: "T1", x: 90, y: 95 },
-    { id: "T2", x: 90, y: 315 },
+    // Output / connection points on the actual circuit image
+    { id: "A",  x: 1207, y: 52,  type: "user",   label: "A"  }, // Square
+    { id: "B",  x: 1282, y: 141, type: "user",   label: "B"  }, // Triangular
+    { id: "C",  x: 1504, y: 454, type: "user",   label: "C"  }, // Sine
+    { id: "D",  x: 1321, y: 671, type: "user",   label: "D"  }, // Ground
 
-    { id: "T3", x: 230, y: 95 },
-    { id: "T4", x: 230, y: 315 },
-
-    { id: "T5", x: 350, y: 95 },
-    { id: "T6", x: 350, y: 315 },
-
-    { id: "T7", x: 500, y: 95 },
-    { id: "T8", x: 500, y: 315 },
-
-    { id: "T9", x: 650, y: 95 },
-    { id: "T10", x: 650, y: 315 },
-
-    { id: "T11", x: 770, y: 145 },
-    { id: "T12", x: 770, y: 215 },
+    // Separate patch points on the right side
+    { id: "G1", x: 1820, y: 14,  type: "ground", label: "G1" },
+    { id: "G2", x: 1820, y: 124, type: "ground", label: "G2" },
+    { id: "G3", x: 1820, y: 424, type: "ground", label: "G3" },
+    { id: "G4", x: 1820, y: 630, type: "ground", label: "G4" },
   ];
+
+const CORRECT_CONNECTIONS = [
+  ["A", "G1"],
+  ["B", "G2"],
+  ["C", "G3"],
+  ["D", "G4"],
+];
 
   /*
    * Generate node numbers.
@@ -104,11 +115,8 @@ function FunctionGenerator({ embedded = false }) {
   }, [connections]);
 
   const handleTerminalClick = (terminalId) => {
-    if (!powerOn) {
-      alert("Turn Power ON before connecting the circuit.");
-      return;
-    }
-
+    // Wiring happens BEFORE Power is ON.
+    // Flow: connect -> check -> start -> power -> simulate.
     if (!selectedTerminal) {
       setSelectedTerminal(terminalId);
       return;
@@ -128,13 +136,21 @@ function FunctionGenerator({ embedded = false }) {
     );
 
     if (!alreadyConnected) {
-      setConnections([
-        ...connections,
+      setConnections((prev) => [
+        ...prev,
         {
           from: selectedTerminal,
           to: terminalId,
         },
       ]);
+
+      // Any wiring change requires a fresh connection check.
+      setConnectionStatus("not-checked");
+      setConnectionMessage("");
+      setExperimentStarted(false);
+      setPowerOn(false);
+      setSimResult(null);
+      setSimError("");
     }
 
     setSelectedTerminal(null);
@@ -144,6 +160,69 @@ function FunctionGenerator({ embedded = false }) {
     setConnections([]);
     setSelectedTerminal(null);
   };
+
+  const normalizeConnection = (from, to) => {
+  return [from, to].sort().join("-");
+};
+
+
+const checkConnections = () => {
+  const actual = connections.map((connection) =>
+    normalizeConnection(
+      connection.from,
+      connection.to
+    )
+  );
+
+  const expected = CORRECT_CONNECTIONS.map(
+    ([from, to]) =>
+      normalizeConnection(from, to)
+  );
+
+  const isCorrect =
+    actual.length === expected.length &&
+    expected.every((connection) =>
+      actual.includes(connection)
+    );
+
+  if (isCorrect) {
+    setConnectionStatus("correct");
+
+    setConnectionMessage(
+      "Correct connections! You can now start the experiment."
+    );
+
+    return true;
+  }
+
+  setConnectionStatus("wrong");
+
+  setConnectionMessage(
+    "Incorrect connections. Connect A-G1, B-G2, C-G3 and D-G4."
+  );
+
+  setExperimentStarted(false);
+
+  return false;
+};
+
+const startExperiment = () => {
+  if (connectionStatus !== "correct") {
+    setConnectionMessage(
+      "Check and correct the circuit connections first."
+    );
+
+    setConnectionStatus("wrong");
+
+    return;
+  }
+
+  setExperimentStarted(true);
+  setPowerOn(true);
+
+  setSimError("");
+  setSimResult(null);
+};
 
   const toggleChannel = (channel) => {
     setActiveChannels({
@@ -162,35 +241,111 @@ function FunctionGenerator({ embedded = false }) {
   };
 
   const runSimulation = async () => {
-    if (!powerOn) {
-      setSimError("Turn Power ON before running the simulation.");
-      return;
-    }
 
-    setSimLoading(true);
-    setSimError("");
+  // 1. Connections must be checked
+  if (connectionStatus !== "correct") {
+    setSimError(
+      "Correct the circuit connections before running the simulation."
+    );
 
-    try {
-      const result = await simulateFunctionGenerator({
+    return;
+  }
+
+
+  // 2. Experiment must be started
+  if (!experimentStarted) {
+    setSimError(
+      "Click Start after checking the circuit connections."
+    );
+
+    return;
+  }
+
+
+  // 3. Power must be ON
+  if (!powerOn) {
+    setSimError(
+      "Turn Power ON before running the simulation."
+    );
+
+    return;
+  }
+
+
+  setSimLoading(true);
+  setSimError("");
+
+
+  try {
+
+    const result =
+      await simulateFunctionGenerator({
+
         Rf: Number(rfK) * 1000,
+
         R1: Number(r1K) * 1000,
+
         R2: Number(r2K) * 1000,
+
         C: Number(cNF) * 1e-9,
+
         Vsat: Number(vsat),
+
       });
-      setSimResult(result);
-    } catch (err) {
-      setSimResult(null);
-      setSimError(err.message || "Simulation failed");
-    } finally {
-      setSimLoading(false);
-    }
-  };
+
+
+    setSimResult(result);
+
+  } catch (err) {
+
+    setSimResult(null);
+
+    setSimError(
+      err.message ||
+      "Simulation failed"
+    );
+
+  } finally {
+
+    setSimLoading(false);
+
+  }
+};
+
+const getWirePath = (from, to) => {
+
+  const midX =
+    (from.x + to.x) / 2;
+
+  return `
+    M ${from.x} ${from.y}
+    L ${midX} ${from.y}
+    L ${midX} ${to.y}
+    L ${to.x} ${to.y}
+  `;
+};
 
   const handleSaveObservation = async (e) => {
+    
     e.preventDefault();
     setSaveError("");
     setSaveSuccess("");
+
+    if (connectionStatus !== "correct") {
+  setSaveError(
+    "Observation cannot be saved until the circuit is correctly connected."
+  );
+
+  return;
+}
+
+if (!experimentStarted) {
+  setSaveError(
+    "Start the experiment before saving an observation."
+  );
+
+  return;
+}
 
     if (!simResult) {
       setSaveError("Run the simulation before saving an observation.");
@@ -318,99 +473,120 @@ function FunctionGenerator({ embedded = false }) {
           <div className="scope-screen">
 
             <svg
-              viewBox="0 0 800 360"
-              className="scope-svg"
+              viewBox="0 0 850 500"
+              className="circuit-svg"
+              style={{ background: "#ffffff" }}
             >
+              {/* Oscilloscope frame */}
+              <rect
+                x="35"
+                y="35"
+                width="780"
+                height="420"
+                fill="#fff"
+                stroke="#222"
+                strokeWidth="2"
+              />
 
               {/* Grid */}
-
-              <defs>
-
-                <pattern
-                  id="scopeGrid"
-                  width="40"
-                  height="30"
-                  patternUnits="userSpaceOnUse"
-                >
-
-                  <path
-                    d="M 40 0 L 0 0 0 30"
-                    fill="none"
-                    stroke="#d9d9d9"
+              {Array.from({ length: 13 }).map((_, i) => {
+                const x = 55 + i * 60;
+                return (
+                  <line
+                    key={`vx-${i}`}
+                    x1={x}
+                    y1="55"
+                    x2={x}
+                    y2="435"
+                    stroke="#d8d8d8"
                     strokeWidth="1"
                   />
+                );
+              })}
 
-                </pattern>
+              {Array.from({ length: 9 }).map((_, i) => {
+                const y = 55 + i * 47.5;
+                return (
+                  <line
+                    key={`hy-${i}`}
+                    x1="55"
+                    y1={y}
+                    x2="795"
+                    y2={y}
+                    stroke="#d8d8d8"
+                    strokeWidth="1"
+                  />
+                );
+              })}
 
-              </defs>
+              {/* Center/reference axes */}
+              <line x1="55" y1="245" x2="795" y2="245" stroke="#999" strokeWidth="1.5" />
 
-              <rect
-                width="800"
-                height="360"
-                fill="url(#scopeGrid)"
-              />
+              {/* Time labels */}
+              <text x="52" y="448" fontSize="11">0</text>
+              <text x="225" y="448" fontSize="11">5</text>
+              <text x="395" y="448" fontSize="11">10</text>
+              <text x="565" y="448" fontSize="11">15</text>
+              <text x="735" y="448" fontSize="11">20</text>
+              <text x="370" y="475" fontSize="12" fontWeight="bold">Time (ms)</text>
 
+              {/* Voltage labels */}
+              <text x="8" y="70" fontSize="11">+15V</text>
+              <text x="22" y="250" fontSize="11">0V</text>
+              <text x="8" y="432" fontSize="11">−15V</text>
 
-              {/* Centre lines */}
+              {/* Channel labels */}
+              <g fontSize="12" fontWeight="bold">
+                <rect x="65" y="65" width="15" height="15" fill="#1aaf45" />
+                <text x="86" y="77" fill="#1aaf45">CH1 Square</text>
 
-              <line
-                x1="20"
-                y1="120"
-                x2="780"
-                y2="120"
-                stroke="#c7c7c7"
-              />
+                <rect x="185" y="65" width="15" height="15" fill="#e0a800" />
+                <text x="206" y="77" fill="#b07d00">CH2 Triangle</text>
 
-              <line
-                x1="20"
-                y1="240"
-                x2="780"
-                y2="240"
-                stroke="#c7c7c7"
-              />
+                <rect x="330" y="65" width="15" height="15" fill="#168de2" />
+                <text x="351" y="77" fill="#168de2">CH3 Sine</text>
+              </g>
 
-
-              {/* Square */}
-
-              {powerOn && simResult && activeChannels.ch1 && (
-
+              {/* Waveforms — rendered only after a successful simulation */}
+              {simResult && activeChannels.ch1 && (
                 <polyline
                   points={wave1}
                   fill="none"
-                  stroke="#159b25"
-                  strokeWidth="4"
+                  stroke="#1aaf45"
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
                 />
-
               )}
 
-
-              {/* Triangle */}
-
-              {powerOn && simResult && activeChannels.ch2 && (
-
+              {simResult && activeChannels.ch2 && (
                 <polyline
                   points={wave2}
                   fill="none"
-                  stroke="#244de8"
-                  strokeWidth="4"
+                  stroke="#e0a800"
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
                 />
-
               )}
 
-
-              {/* Sine */}
-
-              {powerOn && simResult && activeChannels.ch3 && (
-
+              {simResult && activeChannels.ch3 && (
                 <polyline
                   points={wave3}
                   fill="none"
-                  stroke="#f49b00"
-                  strokeWidth="4"
+                  stroke="#168de2"
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
                 />
-
               )}
 
+              {/* Small channel status */}
+              {simResult && (
+                <text x="650" y="78" fontSize="11" fill="#555">
+                  {simResult.frequencyHz.toFixed(2)} Hz
+                </text>
+              )}
             </svg>
 
 
@@ -515,15 +691,29 @@ function FunctionGenerator({ embedded = false }) {
 
 
             <button
-              className={
-                powerOn
-                  ? "power-button power-on"
-                  : "power-button"
-              }
-              onClick={togglePower}
-            >
-              Power: {powerOn ? "On" : "Off"}
-            </button>
+  className={
+    powerOn
+      ? "power-button power-on"
+      : "power-button"
+  }
+
+  onClick={() => {
+
+    if (!experimentStarted) {
+
+      setSimError(
+        "Check the circuit connections and click Start first."
+      );
+
+      return;
+    }
+
+    togglePower();
+
+  }}
+>
+  Power: {powerOn ? "On" : "Off"}
+</button>
 
           </div>
 
@@ -542,436 +732,216 @@ function FunctionGenerator({ embedded = false }) {
               =================================== */}
 
           <section className="fg-panel circuit-panel">
-
             <div className="fg-panel-title">
               CIRCUIT
             </div>
 
+            <div
+              className="circuit-workspace"
+              style={{
+                position: "relative",
+                width: "100%",
+                // 80% circuit + 20% patch-point area, like the reference.
+                aspectRatio: "1925 / 784",
+                overflow: "hidden",
+                background: "#fff",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+              }}
+            >
+              {/* Exact IIT-style reference circuit */}
+              <img
+                src="/assets/function-generator-circuit.png"
+                alt="Function generator using operational amplifier circuit"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  width: "80%",
+                  height: "100%",
+                  objectFit: "fill",
+                  display: "block",
+                }}
+              />
 
-            <div className="circuit-workspace">
-
+              {/* Interactive wiring layer */}
               <svg
-                viewBox="0 0 850 380"
-                className="circuit-svg"
+                viewBox="0 0 1925 784"
+                preserveAspectRatio="none"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                }}
               >
-
-                {/* ==========================
-                    POWER RAILS
-                    ========================== */}
-
-                <line
-                  x1="40"
-                  y1="70"
-                  x2="810"
-                  y2="70"
-                  stroke="#222"
-                  strokeWidth="3"
-                />
-
-                <line
-                  x1="40"
-                  y1="330"
-                  x2="810"
-                  y2="330"
-                  stroke="#222"
-                  strokeWidth="3"
-                />
-
-                <text
-                  x="15"
-                  y="65"
-                  fontSize="15"
-                >
-                  V+
-                </text>
-
-                <text
-                  x="15"
-                  y="335"
-                  fontSize="15"
-                >
-                  V−
-                </text>
-
-
-                {/* ==========================
-                    OP AMP 1
-                    ========================== */}
-
-                <polygon
-                  points="160,120 160,220 270,170"
-                  fill="#ffffff"
-                  stroke="#222"
-                  strokeWidth="3"
-                />
-
-                <text
-                  x="180"
-                  y="168"
-                  fontSize="14"
-                  fontWeight="bold"
-                >
-                  LM741
-                </text>
-
-                <text
-                  x="145"
-                  y="145"
-                  fontSize="18"
-                >
-                  −
-                </text>
-
-                <text
-                  x="145"
-                  y="205"
-                  fontSize="18"
-                >
-                  +
-                </text>
-
-
-                {/* ==========================
-                    RESISTOR 1
-                    ========================== */}
-
-                <rect
-                  x="80"
-                  y="135"
-                  width="70"
-                  height="20"
-                  fill="#f5e4bd"
-                  stroke="#8b6b32"
-                  strokeWidth="2"
-                />
-
-                <text
-                  x="88"
-                  y="129"
-                  fontSize="11"
-                >
-                  R1 {r1K}KΩ
-                </text>
-
-
-                {/* ==========================
-                    OP AMP 2
-                    ========================== */}
-
-                <polygon
-                  points="330,120 330,220 440,170"
-                  fill="#ffffff"
-                  stroke="#222"
-                  strokeWidth="3"
-                />
-
-                <text
-                  x="350"
-                  y="168"
-                  fontSize="14"
-                  fontWeight="bold"
-                >
-                  LM741
-                </text>
-
-                <text
-                  x="315"
-                  y="145"
-                  fontSize="18"
-                >
-                  −
-                </text>
-
-                <text
-                  x="315"
-                  y="205"
-                  fontSize="18"
-                >
-                  +
-                </text>
-
-
-                {/* ==========================
-                    CAPACITOR
-                    ========================== */}
-
-                <line
-                  x1="300"
-                  y1="95"
-                  x2="300"
-                  y2="145"
-                  stroke="#222"
-                  strokeWidth="3"
-                />
-
-                <line
-                  x1="290"
-                  y1="145"
-                  x2="310"
-                  y2="145"
-                  stroke="#222"
-                  strokeWidth="4"
-                />
-
-                <line
-                  x1="290"
-                  y1="155"
-                  x2="310"
-                  y2="155"
-                  stroke="#222"
-                  strokeWidth="4"
-                />
-
-                <line
-                  x1="300"
-                  y1="155"
-                  x2="300"
-                  y2="205"
-                  stroke="#222"
-                  strokeWidth="3"
-                />
-
-                <text
-                  x="315"
-                  y="145"
-                  fontSize="11"
-                >
-                  C1 {cNF}nF
-                </text>
-
-
-                {/* ==========================
-                    OP AMP 3
-                    ========================== */}
-
-                <polygon
-                  points="500,120 500,220 610,170"
-                  fill="#ffffff"
-                  stroke="#222"
-                  strokeWidth="3"
-                />
-
-                <text
-                  x="520"
-                  y="168"
-                  fontSize="14"
-                  fontWeight="bold"
-                >
-                  LM741
-                </text>
-
-                <text
-                  x="485"
-                  y="145"
-                  fontSize="18"
-                >
-                  −
-                </text>
-
-                <text
-                  x="485"
-                  y="205"
-                  fontSize="18"
-                >
-                  +
-                </text>
-
-
-                {/* ==========================
-                    OP AMP 4
-                    ========================== */}
-
-                <polygon
-                  points="650,120 650,220 760,170"
-                  fill="#ffffff"
-                  stroke="#222"
-                  strokeWidth="3"
-                />
-
-                <text
-                  x="670"
-                  y="168"
-                  fontSize="14"
-                  fontWeight="bold"
-                >
-                  LM741
-                </text>
-
-
-                {/* ==========================
-                    FEEDBACK WIRES
-                    ========================== */}
-
-                <path
-                  d="M270 170 L270 280 L110 280 L110 155"
-                  fill="none"
-                  stroke="#333"
-                  strokeWidth="2"
-                />
-
-                <path
-                  d="M440 170 L440 300 L300 300"
-                  fill="none"
-                  stroke="#333"
-                  strokeWidth="2"
-                />
-
-
-                {/* ==========================
-                    OUTPUT LABELS
-                    ========================== */}
-
-                <text
-                  x="780"
-                  y="115"
-                  fontSize="14"
-                  fontWeight="bold"
-                >
-                  Square
-                </text>
-
-                <text
-                  x="780"
-                  y="170"
-                  fontSize="14"
-                  fontWeight="bold"
-                >
-                  Triangular
-                </text>
-
-                <text
-                  x="780"
-                  y="225"
-                  fontSize="14"
-                  fontWeight="bold"
-                >
-                  Sine
-                </text>
-
-
-                {/* ==========================
-                    MANUAL CONNECTION WIRES
-                    ========================== */}
-
                 {connections.map((connection, index) => {
-
                   const from = terminals.find(
-                    (terminal) =>
-                      terminal.id === connection.from
+                    (terminal) => terminal.id === connection.from
                   );
-
                   const to = terminals.find(
-                    (terminal) =>
-                      terminal.id === connection.to
+                    (terminal) => terminal.id === connection.to
                   );
 
                   if (!from || !to) return null;
 
                   return (
-                    <g key={index}>
-
-                      <line
-                        x1={from.x}
-                        y1={from.y}
-                        x2={to.x}
-                        y2={to.y}
-                        stroke="#e60000"
-                        strokeWidth="4"
-                      />
-
-                    </g>
+                    <path
+                      key={index}
+                      d={getWirePath(from, to)}
+                      fill="none"
+                      stroke="#e60000"
+                      strokeWidth="7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      opacity="0.9"
+                    />
                   );
-
                 })}
 
-
-                {/* ==========================
-                    TERMINALS
-                    ========================== */}
-
                 {terminals.map((terminal) => {
-
-                  const selected =
-                    selectedTerminal === terminal.id;
+                  const selected = selectedTerminal === terminal.id;
+                  const connected = connections.some(
+                    (connection) =>
+                      connection.from === terminal.id ||
+                      connection.to === terminal.id
+                  );
 
                   return (
                     <g
                       key={terminal.id}
-                      onClick={() =>
-                        handleTerminalClick(
-                          terminal.id
-                        )
-                      }
-                      style={{
-                        cursor: "pointer",
-                      }}
+                      onClick={() => handleTerminalClick(terminal.id)}
+                      style={{ cursor: "pointer" }}
                     >
+                      {/* Large hit area so clicking is easy */}
+                      <circle
+                        cx={terminal.x}
+                        cy={terminal.y}
+                        r="25"
+                        fill="transparent"
+                      />
 
                       <circle
                         cx={terminal.x}
                         cy={terminal.y}
-                        r={selected ? 9 : 7}
+                        r={selected ? 13 : 10}
                         fill={
                           selected
-                            ? "#00aaff"
-                            : "#ff2020"
+                            ? "#00a8ff"
+                            : connected
+                              ? "#e60000"
+                              : terminal.type === "user"
+                                ? "#ff2020"
+                                : "#008000"
                         }
-                        stroke="#ffffff"
-                        strokeWidth="3"
+                        stroke="#fff"
+                        strokeWidth="4"
                       />
 
-                      {nodeNumbers[terminal.id] && (
-
-                        <text
-                          x={terminal.x + 8}
-                          y={terminal.y - 8}
-                          fontSize="12"
-                          fontWeight="bold"
-                          fill="#d00000"
-                        >
-                          N{nodeNumbers[terminal.id]}
-                        </text>
-
-                      )}
-
+                      <text
+                        x={terminal.x}
+                        y={terminal.y - 18}
+                        textAnchor="middle"
+                        fontSize="22"
+                        fontWeight="700"
+                        fill="#111"
+                        stroke="#fff"
+                        strokeWidth="5"
+                        paintOrder="stroke"
+                      >
+                        {terminal.label}
+                      </text>
                     </g>
                   );
-
                 })}
-
               </svg>
-
-
-              <div className="connection-help">
-
-                {selectedTerminal ? (
-                  <>
-                    Terminal <strong>{selectedTerminal}</strong>{" "}
-                    selected. Click another terminal to connect.
-                  </>
-                ) : (
-                  <>
-                    Click any red terminal, then click another
-                    terminal to connect them.
-                  </>
-                )}
-
-              </div>
-
-
-              <div className="circuit-actions">
-
-                <button
-                  className="clear-wire-button"
-                  onClick={clearConnections}
-                >
-                  Clear Wires
-                </button>
-
-              </div>
-
             </div>
 
+            <div
+              className="connection-help"
+              style={{
+                marginTop: "8px",
+                padding: "8px 10px",
+                borderRadius: "6px",
+                background: "#f7f7f7",
+                fontSize: "13px",
+              }}
+            >
+              {selectedTerminal ? (
+                <>
+                  Terminal <strong>{selectedTerminal}</strong> selected.
+                  Click the terminal you want to connect it to.
+                </>
+              ) : (
+                <>
+                  Connect <strong>A-G1</strong>, <strong>B-G2</strong>,
+                  <strong> C-G3</strong>, and <strong>D-G4</strong>.
+                </>
+              )}
+            </div>
+
+            {connectionMessage && (
+              <div
+                style={{
+                  marginTop: "8px",
+                  padding: "9px 10px",
+                  borderRadius: "6px",
+                  fontWeight: 600,
+                  color:
+                    connectionStatus === "correct" ? "#166534" : "#b91c1c",
+                  background:
+                    connectionStatus === "correct" ? "#dcfce7" : "#fee2e2",
+                }}
+              >
+                {connectionMessage}
+              </div>
+            )}
+
+            <div
+              className="circuit-actions"
+              style={{
+                display: "flex",
+                gap: "8px",
+                marginTop: "10px",
+                flexWrap: "wrap",
+              }}
+            >
+              <button
+                type="button"
+                className="check-connection-button"
+                onClick={checkConnections}
+              >
+                Check Connections
+              </button>
+
+              <button
+                type="button"
+                className="start-experiment-button"
+                onClick={startExperiment}
+                disabled={connectionStatus !== "correct"}
+              >
+                Start
+              </button>
+
+              <button
+                type="button"
+                className="clear-wire-button"
+                onClick={() => {
+                  clearConnections();
+                  setConnectionStatus("not-checked");
+                  setConnectionMessage("");
+                  setExperimentStarted(false);
+                  setPowerOn(false);
+                  setSimResult(null);
+                  setSimError("");
+                  setMeasuredFrequency("");
+                  setSaveError("");
+                  setSaveSuccess("");
+                }}
+              >
+                Reset
+              </button>
+            </div>
           </section>
 
 
