@@ -1,0 +1,12 @@
+{
+  "students": [
+    {
+      "username": "student",
+      "name": "Demo Student",
+      "roll": "BIET-DEMO-001",
+      "salt": "d27af7c8fab57c3155cd642f4de7f52d",
+      "hash": "d22143a47f7bfbfb39a27664c02bad72fe5aba9156d2a40bfc64b4836ca07115",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ]
+}

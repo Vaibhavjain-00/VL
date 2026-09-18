@@ -1,0 +1,13 @@
+{
+  "name": "biet-virtual-lab-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend API for the BIET Jhansi Virtual Electronics Laboratory",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

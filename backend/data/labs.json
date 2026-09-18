@@ -1,0 +1,32 @@
+{
+  "labs": [
+    { "id": 1, "name": "Basic Electronics Lab", "icon": "⚡", "description": "Fundamentals of electronic circuits and components.", "experiments": [] },
+    { "id": 2, "name": "Digital Electronics Lab", "icon": "▣", "description": "Digital logic, gates, flip-flops and counters.", "experiments": [] },
+    { "id": 3, "name": "Network Theory Lab", "icon": "⌁", "description": "Analysis of electrical and electronic networks.", "experiments": [] },
+    { "id": 4, "name": "Electronic Devices Lab", "icon": "◉", "description": "Study of diodes, transistors and semiconductor devices.", "experiments": [] },
+    { "id": 5, "name": "Communication Lab", "icon": "📡", "description": "Study of analog and digital communication systems.", "experiments": [] },
+    { "id": 6, "name": "Signal & System Lab", "icon": "〰", "description": "Analysis of signals and systems.", "experiments": [] },
+    { "id": 7, "name": "Analog Circuit Lab", "icon": "∿", "description": "Study and analysis of analog electronic circuits.", "experiments": [] },
+    {
+      "id": 8,
+      "name": "Integrated Circuit Lab",
+      "icon": "▦",
+      "description": "Study of integrated circuits and their applications.",
+      "experiments": [
+        { "id": 1, "name": "Design the following using Op-Amp", "status": "coming_soon", "route": null },
+        { "id": 2, "name": "Study and design Log and antilog amplifiers", "status": "coming_soon", "route": null },
+        { "id": 3, "name": "Voltage to current and current to voltage converters", "status": "coming_soon", "route": null },
+        { "id": 4, "name": "Second order filters using operational amplifier", "status": "coming_soon", "route": null },
+        { "id": 5, "name": "Realization of Band pass filter with unit gain of pass band from 1 KHz to 12 KHz", "status": "coming_soon", "route": null },
+        { "id": 6, "name": "Study and design voltage comparator and zero crossing detectors", "status": "coming_soon", "route": null },
+        { "id": 7, "name": "Function generator using operational amplifier", "status": "available", "route": "/experiment/function-generator" },
+        { "id": 8, "name": "Design and construct astable multivibrator using IC 555", "status": "coming_soon", "route": null },
+        { "id": 9, "name": "Design and construct monostable multivibrator using IC 555", "status": "coming_soon", "route": null },
+        { "id": 10, "name": "Implement Schmitt Trigger Circuit using IC 555", "status": "coming_soon", "route": null },
+        { "id": 11, "name": "Implement voltage-controlled oscillator using IC566", "status": "coming_soon", "route": null },
+        { "id": 12, "name": "Study and design ramp generator using IC 566", "status": "coming_soon", "route": null }
+      ]
+    },
+    { "id": 9, "name": "Digital Signal Processing Lab", "icon": "〽", "description": "Digital signal processing, filtering and transforms.", "experiments": [] }
+  ]
+}
