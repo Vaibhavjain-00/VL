@@ -2343,3 +2343,610 @@
   }
 
 }
+
+/* =====================================================
+   VIRTUAL LAB EXPERIMENT PAGE
+   ===================================================== */
+
+.experiment-lab-page {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* ================= HEADER ================= */
+
+.experiment-lab-header {
+  height: 82px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 22px;
+
+  gap: 18px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #dddddd;
+}
+
+.experiment-lab-menu {
+  width: 55px;
+  height: 55px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+
+  color: #777;
+
+  cursor: pointer;
+}
+
+.experiment-lab-logo {
+  width: 220px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  color: #2196d2;
+}
+
+.experiment-lab-logo-symbol {
+  font-size: 38px;
+}
+
+.experiment-lab-logo strong {
+  display: block;
+
+  font-size: 22px;
+}
+
+.experiment-lab-logo small {
+  display: block;
+
+  color: #777;
+
+  font-size: 10px;
+}
+
+.experiment-lab-title {
+  flex: 1;
+
+  text-align: center;
+
+  color: #2196d2;
+
+  font-size: 25px;
+
+  font-weight: 500;
+}
+
+.experiment-lab-rating {
+  color: #f5b400;
+
+  font-size: 22px;
+
+  white-space: nowrap;
+}
+
+.experiment-header-btn {
+  border: none;
+
+  padding: 11px 18px;
+
+  border-radius: 22px;
+
+  background: #238fca;
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.experiment-orange-line {
+  height: 7px;
+
+  background: #ff6a00;
+
+  width: 100%;
+}
+
+
+/* ================= BODY ================= */
+
+.experiment-lab-body {
+  display: flex;
+
+  min-height: calc(100vh - 89px);
+}
+
+
+/* ================= SIDEBAR ================= */
+
+.experiment-sidebar {
+  width: 245px;
+
+  flex-shrink: 0;
+
+  background: #ffffff;
+
+  border-right: 1px solid #e0e0e0;
+
+  padding-top: 25px;
+
+  position: sticky;
+
+  top: 0;
+
+  height: calc(100vh - 89px);
+
+  overflow-y: auto;
+}
+
+.experiment-sidebar-item {
+  width: 100%;
+
+  display: block;
+
+  border: none;
+
+  background: transparent;
+
+  padding: 13px 22px;
+
+  text-align: left;
+
+  color: #35618b;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.experiment-sidebar-item:hover {
+  background: #f2f7fb;
+
+  color: #0645a5;
+}
+
+.experiment-sidebar-item.active {
+  color: #ff6a00;
+
+  font-weight: 600;
+
+  background: #fff8f2;
+
+  border-left: 4px solid #ff6a00;
+
+  padding-left: 18px;
+}
+
+
+/* ================= CONTENT ================= */
+
+.experiment-lab-content {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 45px 55px;
+
+  max-width: 1250px;
+}
+
+.lab-section {
+  scroll-margin-top: 25px;
+
+  margin-bottom: 70px;
+
+  padding-bottom: 35px;
+
+  border-bottom: 1px solid #e4e8ed;
+}
+
+.lab-section h1 {
+  color: #123b73;
+
+  font-size: 30px;
+
+  margin-top: 0;
+
+  margin-bottom: 22px;
+}
+
+.lab-section h2 {
+  color: #123b73;
+
+  font-size: 22px;
+
+  margin-top: 30px;
+}
+
+.lab-section p,
+.lab-section li {
+  color: #475569;
+
+  font-size: 16px;
+
+  line-height: 1.75;
+}
+
+.lab-section ol,
+.lab-section ul {
+  padding-left: 25px;
+}
+
+.formula-box {
+  margin: 25px 0;
+
+  padding: 20px 25px;
+
+  background: #f6f9fc;
+
+  border-left: 5px solid #0645a5;
+
+  border-radius: 6px;
+}
+
+.formula {
+  font-family: "Times New Roman", serif;
+
+  font-size: 21px !important;
+
+  color: #123b73 !important;
+
+  text-align: center;
+
+  padding: 8px;
+}
+
+
+/* ================= QUESTIONS ================= */
+
+.question-card {
+  margin: 20px 0;
+
+  padding: 22px;
+
+  background: #f8fafc;
+
+  border: 1px solid #dbe5f1;
+
+  border-radius: 9px;
+}
+
+.question-card h3 {
+  margin-top: 0;
+
+  color: #123b73;
+
+  font-size: 17px;
+}
+
+.question-card label {
+  display: block;
+
+  padding: 8px 0;
+
+  color: #475569;
+
+  cursor: pointer;
+}
+
+.question-card input {
+  margin-right: 10px;
+}
+
+
+/* ================= PROCEDURE ================= */
+
+.procedure-list li {
+  margin-bottom: 12px;
+}
+
+
+/* ================= TUTORIAL ================= */
+
+.tutorial-box {
+  margin-top: 25px;
+
+  padding: 22px;
+
+  background: #f4f8fc;
+
+  border: 1px solid #d4e0ec;
+
+  border-radius: 8px;
+}
+
+.tutorial-box h3 {
+  margin-top: 0;
+
+  color: #123b73;
+}
+
+
+/* ================= SIMULATION ================= */
+
+.simulation-section {
+  padding-bottom: 45px;
+}
+
+.section-description {
+  color: #64748b !important;
+
+  margin-bottom: 25px;
+}
+
+
+/*
+   FunctionGenerator normally has its own large page layout.
+   When embedded inside ExperimentLab, make it fit the content area.
+*/
+
+.simulation-section .function-generator-page {
+  width: 100%;
+  min-height: auto;
+}
+
+.simulation-section .fg-main {
+  padding: 20px 0;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 25px;
+}
+
+
+/* ================= OBSERVATION TABLE ================= */
+
+.observation-heading {
+  margin: 20px 0 12px;
+
+  color: #123b73;
+
+  font-size: 20px;
+}
+
+.observation-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid #dbe5f1;
+
+  border-radius: 8px;
+}
+
+.observation-table {
+  width: 100%;
+
+  min-width: 950px;
+
+  border-collapse: collapse;
+
+  font-size: 13px;
+}
+
+.observation-table th {
+  padding: 11px 9px;
+
+  background: #0753a3;
+
+  color: white;
+
+  border-right: 1px solid #ffffff55;
+
+  text-align: center;
+
+  white-space: nowrap;
+}
+
+.observation-table td {
+  padding: 10px 8px;
+
+  border-bottom: 1px solid #e4e8ef;
+
+  text-align: center;
+
+  color: #334155;
+
+  white-space: nowrap;
+}
+
+.observation-table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.observation-table tbody tr:hover {
+  background: #eef5ff;
+}
+
+
+/* ================= CONTRIBUTORS ================= */
+
+.contributors-card {
+  padding: 25px;
+
+  background: #f8fafc;
+
+  border: 1px solid #dbe5f1;
+
+  border-radius: 10px;
+}
+
+.contributors-card h3 {
+  margin-top: 0;
+
+  color: #123b73;
+}
+
+
+/* ================= FEEDBACK ================= */
+
+.feedback-form {
+  max-width: 650px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.feedback-form label {
+  margin-top: 10px;
+
+  color: #334155;
+
+  font-weight: 600;
+}
+
+.feedback-form input,
+.feedback-form select,
+.feedback-form textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 11px;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 6px;
+
+  font-size: 14px;
+}
+
+.feedback-form textarea {
+  resize: vertical;
+}
+
+.feedback-form button {
+  width: fit-content;
+
+  margin-top: 10px;
+
+  padding: 11px 22px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: #0645a5;
+
+  color: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.feedback-form button:hover {
+  background: #03357e;
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1000px) {
+
+  .experiment-lab-header {
+    flex-wrap: wrap;
+
+    height: auto;
+
+    padding: 12px;
+  }
+
+  .experiment-lab-title {
+    order: 5;
+
+    width: 100%;
+
+    flex-basis: 100%;
+
+    font-size: 20px;
+  }
+
+  .experiment-lab-rating,
+  .experiment-header-btn {
+    display: none;
+  }
+
+  .experiment-sidebar {
+    width: 200px;
+  }
+
+  .experiment-lab-content {
+    padding: 30px;
+  }
+
+  .simulation-section .fg-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .experiment-lab-body {
+    display: block;
+  }
+
+  .experiment-sidebar {
+    width: 100%;
+
+    height: auto;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 10;
+
+    display: flex;
+
+    overflow-x: auto;
+
+    border-right: none;
+
+    border-bottom: 1px solid #ddd;
+
+    padding: 0;
+  }
+
+  .experiment-sidebar-item {
+    min-width: max-content;
+
+    text-align: center;
+
+    padding: 12px 15px;
+
+    font-size: 14px;
+  }
+
+  .experiment-sidebar-item.active {
+    border-left: none;
+
+    border-bottom: 3px solid #ff6a00;
+
+    padding-left: 15px;
+  }
+
+  .experiment-lab-content {
+    padding: 25px 18px;
+  }
+}

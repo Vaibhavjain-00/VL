@@ -10,7 +10,7 @@ import {
 // Sample density used by the backend simulator (lib/simulate.js defaults).
 const POINTS_PER_CYCLE = 120;
 
-function FunctionGenerator() {
+function FunctionGenerator({ embedded = false }) {
   const navigate = useNavigate();
 
   const [powerOn, setPowerOn] = useState(false);
@@ -255,45 +255,48 @@ function FunctionGenerator() {
           TOP HEADER
           ========================================= */}
 
-      <header className="fg-header">
+      {!embedded && (
+  <>
+    <header className="fg-header">
 
-        <div className="fg-menu">
-          ☰
+      <div className="fg-menu">
+        ☰
+      </div>
+
+      <div className="fg-logo">
+
+        <div className="fg-logo-symbol">
+          ⚗
         </div>
 
-        <div className="fg-logo">
-          <div className="fg-logo-symbol">
-            ⚗
-          </div>
-
-          <div>
-            <strong>Virtual Labs</strong>
-            <small>BIET Jhansi</small>
-          </div>
+        <div>
+          <strong>Virtual Labs</strong>
+          <small>BIET Jhansi</small>
         </div>
 
-        <div className="fg-title">
-          Function generator using operational amplifier
-        </div>
+      </div>
 
-        <div className="fg-rating">
-          ★ ★ ★ ★ ☆
-        </div>
+      <div className="fg-title">
+        Function generator using operational amplifier
+      </div>
 
-        <button className="fg-header-button">
-          Rate Me
-        </button>
+      <div className="fg-rating">
+        ★ ★ ★ ★ ☆
+      </div>
 
-        <button className="fg-header-button">
-          Report a Bug
-        </button>
+      <button className="fg-header-button">
+        Rate Me
+      </button>
 
-      </header>
+      <button className="fg-header-button">
+        Report a Bug
+      </button>
 
+    </header>
 
-      {/* ORANGE LINE */}
-
-      <div className="fg-orange-line"></div>
+    <div className="fg-orange-line"></div>
+  </>
+)}
 
 
       {/* =========================================
@@ -1109,32 +1112,85 @@ function FunctionGenerator() {
 
             {results.length > 0 && (
 
-              <div className="fg-results-list">
+  <div className="fg-results-list">
 
-                <table>
-                  <thead>
-                    <tr>
-                      <th>When</th>
-                      <th>Theoretical (Hz)</th>
-                      <th>Measured (Hz)</th>
-                      <th>Error %</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results.map((r) => (
-                      <tr key={r.id}>
-                        <td>{new Date(r.submittedAt).toLocaleString()}</td>
-                        <td>{r.theoreticalFrequencyHz.toFixed(2)}</td>
-                        <td>{r.measuredFrequencyHz.toFixed(2)}</td>
-                        <td>{r.percentError.toFixed(2)}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+    <h3 className="observation-heading">
+      Observation Table
+    </h3>
 
-              </div>
+    <div className="observation-table-wrapper">
 
-            )}
+      <table className="observation-table">
+
+        <thead>
+
+          <tr>
+            <th>S.No.</th>
+            <th>Rf (kΩ)</th>
+            <th>R1 (kΩ)</th>
+            <th>R2 (kΩ)</th>
+            <th>C (nF)</th>
+            <th>Vsat (V)</th>
+            <th>Theoretical f (Hz)</th>
+            <th>Observed f (Hz)</th>
+            <th>Error (%)</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {results.map((r, index) => (
+
+            <tr key={r.id}>
+
+              <td>{index + 1}</td>
+
+              <td>
+                {(r.inputs.Rf / 1000).toFixed(2)}
+              </td>
+
+              <td>
+                {(r.inputs.R1 / 1000).toFixed(2)}
+              </td>
+
+              <td>
+                {(r.inputs.R2 / 1000).toFixed(2)}
+              </td>
+
+              <td>
+                {(r.inputs.C * 1e9).toFixed(2)}
+              </td>
+
+              <td>
+                {r.inputs.Vsat.toFixed(2)}
+              </td>
+
+              <td>
+                {r.theoreticalFrequencyHz.toFixed(2)}
+              </td>
+
+              <td>
+                {r.measuredFrequencyHz.toFixed(2)}
+              </td>
+
+              <td>
+                {r.percentError.toFixed(2)}
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+)}
 
           </section>
 

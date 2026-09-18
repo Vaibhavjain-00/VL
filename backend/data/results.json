@@ -1,3 +1,34 @@
 {
-  "results": []
+  "results": [
+    {
+      "id": "71eecd08-a426-4de3-a79f-c276ba7d2aa4",
+      "username": "student",
+      "submittedAt": "2026-09-18T18:55:30.142Z",
+      "inputs": {
+        "Rf": 100000,
+        "R1": 33000,
+        "R2": 10000,
+        "C": 1.0000000000000001e-7,
+        "Vsat": 13
+      },
+      "theoreticalFrequencyHz": 757.5757575757576,
+      "measuredFrequencyHz": 757.58,
+      "percentError": 0.0005599999999994907
+    },
+    {
+      "id": "78b555ce-4d33-4a42-a603-0a38389beeb4",
+      "username": "student",
+      "submittedAt": "2026-09-18T18:56:17.025Z",
+      "inputs": {
+        "Rf": 100000,
+        "R1": 16100.000000000002,
+        "R2": 29100,
+        "C": 1.0000000000000001e-7,
+        "Vsat": 13
+      },
+      "theoreticalFrequencyHz": 533.6065398817526,
+      "measuredFrequencyHz": 533.46,
+      "percentError": 0.027462159999959355
+    }
+  ]
 }
